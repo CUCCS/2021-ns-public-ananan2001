@@ -21,8 +21,9 @@
 - 导入windowxp的vdi,在管理->虚拟介质管理中在无挂载情况下切换为多重加载,设置PCnet-FAST III
 - 下载debian10.vdi.tar.gz，解压得到vdi，切换到多重加载并挂载，如图配置四张网卡，root/toor登录
 
-![]
-![]
+![网关网卡](img/ipacheck.png)
+![check](img/networkinterfacevimcheck.png)
+![操作台配置](img/table.png)
 
 - 网关网卡地址
 
@@ -44,41 +45,43 @@ dhcp-range=172.16.222.100,172.16.222.150,240h
 
 查看/etc/dnsmasq.conf文件，发现已配置好，最后重启服务并设置开机自启
 
-![]
+![dnsmasqconf](img/dnsmasqconf.png)
+![dnsmasqauto](img/dnsmasqrebootandauto.png)
 
 ### 3.intnet1
 - windowsxp1(172.16.111.101)
-    + 手动配置地址
-    ![]
+    + 采用手动配置地址方法
+    ![windowsxp1](img/windowsxphandly.png)
+    + ip config &&测试和网关的连通性。防火墙工作，只能实现单向通信；关闭防火墙，能实现双向通信
+    ![windowsxp_ipconfig](img/windowsxptogateway.png)
 
-    + 测试和网关的连通性。防火墙工作，只能实现单向通信；关闭防火墙，能实现双向通信
-    ![]
+    ![liantongxingcheck](img/xpanddebianafterclosethewall.png)
 
 - kali1(172.16.111.111)
     + kali自动获取地址并成功联通xindowsxp
-    ![]
+    ![kaliandxp](img/kalisuccess.png)
 
     + kali连通网关
-    ![]
+    ![kaliandgateway](img/kalitogateway.png)
 
 - 通过dnsmasq查看log实现网关对Windowsxp的监控
 
-![]
+![tailing](img/gatewaytailswindowsxpviadnsmasqlog.png)
 ### 4.intnet2
 - WindowsXP2(172.16.222.109)
     + 设置intnet2以达到拔网线的效果，WindowsXP会自动被分配到新的地址
-    ![]
+    ![windowsxp_renewed_its_ipaddress](img/windowsxpipconfigrenew.png)
     + 连通性测试，与网关连通，与intnet1中的单位不连通
-    ![]
-    ![]
+    ![windowsxp_to_gateway](img/windowsxpinintnet2togateway.png)
+    ![windowsxp_to_kali](img/windowsxpinintnet2tokaliinintnet1.png)
 - kali2(172.16.222.111)
     + 查看IP地址
-    ![]
+    ![kali_intnet2](img/intnet2kaliipa.png)
 
 ### 5.搭建攻击者环境
 - attackerkali(10.0.2.4)
     + 查看IP
-    ![]
+    ![attackerkali_ipaddress](img/attackerkaliipa.png)
 
 
 - 重启网关网卡
@@ -92,47 +95,52 @@ dhcp-range=172.16.222.100,172.16.222.150,240h
 - 攻击者主机无法直接访问靶机
 
     + intnet2中WindowsXP与NAT网络中的网关（10.0.2.15）有连通性
-    ![]
+    ![intnet2_to_gateway](img/intnet2tonatgateway.png)
 
     + intnet2中WindowsXP与网关NAT网络中的攻击者kali（10.0.2.4）有连通性
-    ![]
+    ![intnet2_to_attacker](img/intnet2tonatattackerkali.png)
     
     ***Kali一直在ping，，导致网络不通的时候命令行没有回应***
     + 攻击者ping不通intnet1网关
-    ![]
+    ![attacker_failed1](img/attackerkalifailedtogatewayinintnet1.png)
 
     + 攻击者ping不通intnet2的WindowsXP
-    ![]
+    ![attacker_failed2](img/attackerkalifailedtointnet2.png)
     
 
 
 - 网关可以直接访问攻击者主机和靶机
     + attackerkali
-    ![]
+    ![gateway_to_attacker](img/gatewaytoattacker.png)
     + windowsxp
-    ![]
+    ![gateway_to_windowsxp](img/gatewaytowindosxp.png)
 
 - 靶机的所有对外上下行流量必须经过网关
     + 在debian中用tcpdump工具抓包，同时在intnet2中的WindowsXP上面打开网站产生流量
-    ![]
+    ![tcpdump1](img/tcpdumpinwindowsxp.png)
+    ![tcpdump2](img/tcpdump抓包操作.png)
 
     + 抓包保存后传到宿主机，用wireshark打开，可以在纯净环境中观察到WindowsXP的上网过程。
-    ![]
+    ![analysis](img/wireshark.png)
 
 - 所有节点均可以访问互联网
-    + windowsxp上网
-    ![]
-    + kali上网
-    ![]
-    + attackerkali上网
-    ![]
+    + intnet1-windowsxp上网
+    ![internet_windowsxp](img/internetwindowsxp.png)
+    + intnet1-kali上网
+    ![internet_kali](img/internetkali.png)
+    + intnet2-windowsxp上网
+    ![internet_windowsxp_in_intnet2](img/internetinintnet2.png)
+    + intnet2-kali上网
+    ![internet_kali_in_intnet2](img/internetkaliinintnet2.png)
+    + attacker+kali上网
+    ![internet_attacker](img/internetattackerkali.png)
     + 网关上网
-    ![]
+    ![internet_gateway](img/internetgateway.png)
 
 ## 实验问题解决
 - 实现ssh远程登录Debian的时候报错permission denied 无法建立连接，解决的方法是修改/etc/ssh/sshd_config文件,PermitRootLogin yes允许root登录，最后重启
 
-![]
+![ssh配置](img/ssh.png)
 
 ## 参考资料
 - [Linux--vim操作命令（全）](https://blog.csdn.net/pansaky/article/details/83755750)
