@@ -11,7 +11,7 @@
 ## 实验环境
 - vitualbox6.1
     + ***Attacker***     kali
-    + ***Victim***     windowsxp
+    + ***Victim***     windowsxp&&kali
     +  ***Gateway***   debian10 buster
 
 ## 实验步骤
